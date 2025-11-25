@@ -4,18 +4,18 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  contents: read
+  issues: write
+  projects: write
+
 jobs:
   track_issue:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-      projects: write
     steps:
       - name: Get project data
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
+          set -eo pipefail
           gh api graphql -f query='
             query {
               organization(login: "revoltchat"){
@@ -43,9 +43,9 @@ jobs:
 
       - name: Add issue to project
         env:
-          GH_TOKEN: ${{ github.token }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
         run: |
+          set -eo pipefail
           item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
               addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
