@@ -13,6 +13,10 @@ jobs:
   track_issue:
     runs-on: ubuntu-latest
     steps:
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
       - name: Get project data
         run: |
           set -eo pipefail
@@ -39,7 +43,7 @@ jobs:
 
           echo 'PROJECT_ID='$(jq -r '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq -r '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'TODO_OPTION_ID='$(jq -r '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Todo") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TODO_OPTION_ID='$(jq -r '.data.organization.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Todo") | .id' project_data.json) >> $GITHUB_ENV
 
       - name: Add issue to project
         env:
